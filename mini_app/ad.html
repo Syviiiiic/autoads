@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Auto Ads - Детали объявления</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <button class="back-btn" onclick="history.back()">←</button>
+            <h1>Объявление</h1>
+            <button class="menu-btn" id="menuBtn">⋮</button>
+        </header>
+
+        <div class="ad-detail" id="adDetail">
+            <div class="loading">Загрузка...</div>
+        </div>
+
+        <div class="contact-bar">
+            <button class="contact-btn" id="contactBtn">📞 Связаться с продавцом</button>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/ad.js"></script>
+</body>
+</html>

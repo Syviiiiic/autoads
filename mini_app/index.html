@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Auto Ads - Каталог автомобилей</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <button class="menu-btn" id="menuBtn">☰</button>
+            <h1>🚗 Auto Ads</h1>
+            <button class="profile-btn" id="profileBtn">👤</button>
+        </header>
+
+        <div class="search-section">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="🔍 Поиск по марке или модели..." autocomplete="off">
+                <button id="searchBtn">Найти</button>
+            </div>
+            
+            <button class="toggle-filters" id="toggleFilters">
+                🔽 Показать фильтры
+            </button>
+            
+            <div class="filters" id="filters" style="display: none;">
+                <select id="brandFilter">
+                    <option value="">Все марки</option>
+                </select>
+                <input type="text" id="modelFilter" placeholder="Модель">
+                <div class="filter-row">
+                    <input type="number" id="priceMin" placeholder="Цена от">
+                    <input type="number" id="priceMax" placeholder="Цена до">
+                </div>
+                <div class="filter-row">
+                    <input type="number" id="yearMin" placeholder="Год от">
+                    <input type="number" id="yearMax" placeholder="Год до">
+                </div>
+                <button id="applyFilters" class="apply-btn">Применить фильтры</button>
+            </div>
+        </div>
+
+        <div class="ads-grid" id="adsGrid">
+            <div class="loading">Загрузка...</div>
+        </div>
+
+        <div class="pagination" id="pagination">
+            <button class="prev-btn" id="prevPage" disabled>← Назад</button>
+            <span class="page-info" id="pageInfo">Страница 1</span>
+            <button class="next-btn" id="nextPage">Вперёд →</button>
+        </div>
+
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-page="catalog">
+                <span class="nav-icon">🏠</span>
+                <span>Каталог</span>
+            </button>
+            <button class="nav-btn" data-page="add">
+                <span class="nav-icon">➕</span>
+                <span>Продать</span>
+            </button>
+            <button class="nav-btn" data-page="favorites">
+                <span class="nav-icon">❤️</span>
+                <span>Избранное</span>
+            </button>
+            <button class="nav-btn" data-page="profile">
+                <span class="nav-icon">👤</span>
+                <span>Профиль</span>
+            </button>
+        </nav>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

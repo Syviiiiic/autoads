@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Auto Ads - Мои объявления</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <button class="back-btn" onclick="history.back()">←</button>
+            <h1>Мои объявления</h1>
+            <button class="add-btn" id="addBtn">➕</button>
+        </header>
+
+        <div class="my-ads-list" id="myAdsList">
+            <div class="loading">Загрузка...</div>
+        </div>
+
+        <nav class="bottom-nav">
+            <button class="nav-btn" data-page="catalog">🏠</button>
+            <button class="nav-btn" data-page="add">➕</button>
+            <button class="nav-btn" data-page="favorites">❤️</button>
+            <button class="nav-btn active" data-page="profile">👤</button>
+        </nav>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/my-ads.js"></script>
+</body>
+</html>
