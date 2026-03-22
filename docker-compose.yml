@@ -8,24 +8,50 @@ services:
       POSTGRES_USER: ${DB_USER:-autobot}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-autobot123}
       POSTGRES_DB: ${DB_NAME:-auto_ads}
-      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    command: >
+      postgres
+      -c shared_buffers=1GB
+      -c effective_cache_size=3GB
+      -c maintenance_work_mem=256MB
+      -c work_mem=32MB
+      -c max_connections=200
+      -c max_worker_processes=4
+      -c max_parallel_workers=4
+      -c max_parallel_workers_per_gather=2
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init:/docker-entrypoint-initdb.d
+      - ./backups:/backups
     networks:
       - auto_ads_network
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-autobot} -d ${DB_NAME:-auto_ads}"]
-      interval: 10s
-      timeout: 5s
+      interval: 30s
+      timeout: 10s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1.5'
+          memory: 2G
 
   redis:
     image: redis:7-alpine
     container_name: auto_ads_redis
+    command: >
+      redis-server
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
     ports:
       - "6379:6379"
     volumes:
@@ -33,7 +59,14 @@ services:
     networks:
       - auto_ads_network
     restart: unless-stopped
-    command: redis-server --appendonly yes
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 768M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
 
   api:
     build:
@@ -44,6 +77,9 @@ services:
       DATABASE_URL: postgresql://${DB_USER:-autobot}:${DB_PASSWORD:-autobot123}@postgres:5432/${DB_NAME:-auto_ads}
       REDIS_URL: redis://redis:6379
       BOT_TOKEN: ${BOT_TOKEN}
+      WEB_CONCURRENCY: 4
+      WORKERS_PER_CORE: 2
+      MAX_WORKERS: 8
     ports:
       - "8000:8000"
     depends_on:
@@ -58,7 +94,19 @@ services:
     networks:
       - auto_ads_network
     restart: unless-stopped
-    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload --log-level info
+    command: >
+      sh -c "
+        alembic upgrade head &&
+        uvicorn api.main:app --host 0.0.0.0 --port 8000 --workers 4 --loop uvloop --http httptools
+      "
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
 
   mini-app:
     build:
@@ -67,16 +115,22 @@ services:
     container_name: auto_ads_mini_app
     ports:
       - "80:80"
-      - "443:443"  # Для HTTPS
     volumes:
       - ./mini-app:/usr/share/nginx/html:ro
       - ./nginx/mini-app.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./ssl:/etc/nginx/ssl  # Для HTTPS сертификатов
     networks:
       - auto_ads_network
     restart: unless-stopped
     depends_on:
       - api
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
 
   bot:
     build: .
@@ -102,6 +156,39 @@ services:
       - auto_ads_network
     restart: unless-stopped
     command: python -m bot.main
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Опционально: pgAdmin для управления БД
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: auto_ads_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    networks:
+      - auto_ads_network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    profiles:
+      - debug
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
 
 networks:
   auto_ads_network:
@@ -112,3 +199,5 @@ volumes:
     name: auto_ads_postgres_data
   redis_data:
     name: auto_ads_redis_data
+  pgadmin_data:
+    name: auto_ads_pgadmin_data
