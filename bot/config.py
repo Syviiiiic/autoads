@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    BOT_TOKEN = os.getenv('8414611248:AAFrRRvJp1NVzAe-hz2Qi50CGNGVdf4vInE')
+    BOT_TOKEN = os.getenv('BOT_TOKEN')
     ADMIN_IDS = [int(id) for id in os.getenv('ADMIN_IDS', '').split(',') if id]
     DATABASE_URL = os.getenv('DATABASE_URL')
     API_URL = os.getenv('API_URL', 'http://185.56.162.203:8000')
