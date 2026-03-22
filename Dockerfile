@@ -25,4 +25,4 @@ ENV PYTHONUNBUFFERED=1
 ENV PTB_ASYNCIO_LOOP=1
 
 # Команда для запуска бота
-CMD ["python", "-m", "bot.main"]
+CMD ["python", "-m", "bot/main.py"]
