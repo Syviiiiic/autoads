@@ -31,8 +31,8 @@ logger = logging.getLogger(__name__)
 # Загрузка переменных окружения
 load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
-API_URL = os.getenv('API_URL', 'http://localhost:8000')
-MINI_APP_URL = os.getenv('MINI_APP_URL', 'https://your-domain.com')  # URL где будет размещён Mini App
+API_URL = os.getenv('API_URL', 'http://185.56.162.203:8000')
+MINI_APP_URL = os.getenv('MINI_APP_URL', 'https://185.56.162.203')  # URL где будет размещён Mini App
 
 # Состояния для ConversationHandler
 (
