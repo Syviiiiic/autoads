@@ -2,18 +2,17 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y \
     gcc \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Копируем всё содержимое папки bot в /app (не в /app/bot!)
-COPY bot/ .
+COPY . .
 
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
+RUN useradd -m -u 1000 botuser && chown -R botuser:botuser /app
+USER botuser
 
-# Запускаем main.py из /app
-CMD ["python", "main.py"]
+CMD ["python", "-m", "bot.main"]
