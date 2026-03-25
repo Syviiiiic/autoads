@@ -2,7 +2,6 @@ import logging
 import asyncio
 import os
 import sys
-
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
@@ -104,5 +103,20 @@ async def main():
     logger.info("Bot started successfully!")
     await app.run_polling()
 
+# ========== ИСПРАВЛЕННАЯ ТОЧКА ВХОДА ==========
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        # Пытаемся получить существующий event loop
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        # Нет запущенного loop, создаём новый
+        loop = None
+    
+    if loop and loop.is_running():
+        # Если loop уже запущен, создаём задачу (для совместимости)
+        import nest_asyncio
+        nest_asyncio.apply()
+        loop.create_task(main())
+    else:
+        # Иначе запускаем обычным способом
+        asyncio.run(main())
